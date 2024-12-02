@@ -1,1 +1,1 @@
-export const BASE_API_URL = "http://hf.amitoj.net:8080";
+export const BASE_API_URL = "https://hf.amitoj.net:8080";
