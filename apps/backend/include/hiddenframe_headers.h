@@ -1,9 +1,10 @@
+#ifndef HIDDENFRAME_HEADERS_H
+#define HIDDENFRAME_HEADERS_H
+
 #include <string>
 #include <vector>
 #include <sqlite/sqlite3.h>
 #include <crow/json.h>
-#ifndef hiddenframe_headers
-#define hiddenframe_headers
 
 using namespace std;
 
@@ -62,15 +63,16 @@ private:
     vector<char> bitStringCompressor(int channels, string toCompress);
 };
 
-sqlite3 *createDB(string filepath);
-void createNewAdmin(sqlite3 *database, const string &username, const string &password);
-void createNewUser(sqlite3 *database, const string &username, const string &password, const int InviteID);
-bool authenticateUser(sqlite3 *database, const string &username, const string &password);
-bool changePassword(sqlite3 *database, const string &username, const string &newPassword);
-int createInvite(sqlite3 *database, const string &username);
-vector<crow::json::wvalue> listInvites(sqlite3 *database, const int &userId);
-pair<int, string> verifyTokenWithDb(sqlite3 *database, const string &tokenId);
-void saveToken(sqlite3 *database, const string &username, const string &tokenId);
+sqlite3 *createDB(const string &filepath);
+void createNewAdmin(const string &username, const string &password);
+void createNewUser(const string &username, const string &password, const int InviteID);
+bool authenticateUser(const string &username, const string &password);
+bool changePassword(const string &username, const string &newPassword);
+int createInvite(const string &username);
+vector<crow::json::wvalue> listInvites(const int &userId);
+pair<int, string> verifyTokenWithDb(const string &tokenId);
+void saveToken(const string &username, const string &tokenId);
 void closeDB(sqlite3 *db);
-bool usernameExists(sqlite3 *db, const string &username);
-#endif
+bool usernameExists(const string &username);
+
+#endif // HIDDENFRAME_HEADERS_H

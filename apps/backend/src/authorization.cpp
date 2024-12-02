@@ -7,7 +7,7 @@
 
 using namespace std;
 
-std::pair<bool, std::variant<std::string, std::tuple<int, std::string, std::string>>> verify_token(const std::string &token, sqlite3 *database)
+std::pair<bool, std::variant<std::string, std::tuple<int, std::string, std::string>>> verify_token(const std::string &token)
 {
     try
     {
@@ -28,7 +28,7 @@ std::pair<bool, std::variant<std::string, std::tuple<int, std::string, std::stri
                                 .allow_algorithm(jwt::algorithm::hs256{secret});
             verifier.verify(decoded); // this will error if verification fails
 
-            auto [user_id, username] = verifyTokenWithDb(database, token_id); // verify with db
+            auto [user_id, username] = verifyTokenWithDb(token_id); // verify with db
 
             return {true, std::make_tuple(user_id, token_id, username)};
         }
@@ -61,7 +61,7 @@ void AuthorizationMiddleware::before_handle(crow::request &req, crow::response &
 
         cout << "Token: " << token << endl;
 
-        auto [success, result] = verify_token(token, createDB("database/userdatabase.db"));
+        auto [success, result] = verify_token(token);
 
         if (!success)
         {

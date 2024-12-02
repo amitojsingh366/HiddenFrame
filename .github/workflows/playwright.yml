@@ -26,8 +26,13 @@ jobs:
       - name: Install dependencies
         run: npm i
         working-directory: apps/web
-      - name: Start Development Server
-        run: npm run dev &
+      - name: Build prod app
+        run: npm run build
+        working-directory: apps/web
+      - name: Start Web Server
+        run: |
+          export SESSION_SECRET=secret
+          npm start &
         working-directory: apps/web
       - name: Install Playwright Browsers
         run: npx playwright install --with-deps

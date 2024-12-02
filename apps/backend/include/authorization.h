@@ -22,6 +22,6 @@ struct AuthorizationMiddleware : public crow::ILocalMiddleware
     void after_handle(crow::request &req, crow::response &res, context &ctx);
 };
 
-std::pair<bool, std::variant<std::string, std::tuple<int, std::string, std::string>>> verify_token(const std::string &token, sqlite3 *database);
+std::pair<bool, std::variant<std::string, std::tuple<int, std::string, std::string>>> verify_token(const std::string &token);
 
 #endif // AUTHORIZATION_H

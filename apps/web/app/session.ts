@@ -16,7 +16,7 @@ type SessionFlashData = {
 export const sessionStorage = createCookieSessionStorage<SessionData, SessionFlashData>({
     cookie: {
         name: "__session",
-        secure: process.env.NODE_ENV === "production",
+        secure: false,
         secrets: [process.env.SESSION_SECRET!],
         sameSite: "lax",
         path: "/",

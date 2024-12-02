@@ -15,8 +15,11 @@ export const ThemeSwitcher = () => {
     const changeTheme = () => {
         console.log('changing theme')
         document.documentElement.classList.toggle("dark");
-        setIsDark(!isDark)
-        localStorage.setItem('@app/theme', isDark ? 'dark' : 'light')
+        setIsDark((dark) => {
+            const newTheme = !dark;
+            localStorage.setItem('@app/theme', newTheme ? 'dark' : 'light')
+            return !newTheme
+        })
     };
 
     return (<Button

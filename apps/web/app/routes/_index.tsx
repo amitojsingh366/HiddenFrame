@@ -4,10 +4,11 @@ import { json } from "@remix-run/node";
 import { useLoaderData, Form, useActionData, useNavigation } from "@remix-run/react";
 import { Button, PageHeader, Input } from "../components";
 import { FaCloudUploadAlt } from "react-icons/fa";
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import { BASE_API_URL } from "../lib/consts";
 import { toast } from "sonner";
 import { getSession } from "../session";
+import { Copy } from "lucide-react";
 
 export const meta: MetaFunction = () => {
   return [
@@ -76,7 +77,9 @@ export const action: ActionFunction = async ({ request }) => {
   });
 
   if (resp.ok) {
-    return json({ success: true, message: "Image uploaded successfully" }, { status: 200 });
+    const data = await resp.json();
+    if (!data) return json({ success: true, message: "Image uploaded successfully" }, { status: 200 });
+    return json({ success: true, message: "Image uploaded successfully", key: data.key }, { status: 200 });
   } else {
     return json({ success: false, message: "Failed to upload image" }, { status: 500 });
   }
@@ -85,6 +88,7 @@ export const action: ActionFunction = async ({ request }) => {
 type ActionData = {
   success: boolean;
   message: string;
+  key?: string;
 };
 
 export default function Index() {
@@ -109,6 +113,13 @@ export default function Index() {
     }
   }, [loaderSuccess, loaderMessage]);
 
+  const copyKeyToClipboard = useMemo(() => async () => {
+    if (action && action.key) {
+      await navigator.clipboard.writeText(action.key);
+      toast.success("Key copied to clipboard");
+    }
+  }, [action]);
+
   return (
     <div className="flex items-center justify-center h-full">
       <div className="flex flex-col items-center gap-16 h-full">
@@ -120,6 +131,11 @@ export default function Index() {
           {username && <Input id="message" name="message" type="text" placeholder="Enter message..." />}
           <Button loading={loading} type="submit"> <FaCloudUploadAlt className="w-8" /> Upload New Image</Button>
         </Form>
+
+        {action && action.key && <p className="flex flex-row gap-2 items-center">
+          The key for the uplaoded image is: <code data-testid="secret-key" className="font-mono">{action.key}</code>
+          <Button variant="ghost" size="sm" onClick={copyKeyToClipboard}><Copy /></Button>
+        </p>}
 
         <h2 className="text-2xl font-[Outfit] font-black ">Photos from Unsplash</h2>
         <div className="grid grid-cols-3 gap-4 p-4">
@@ -134,6 +150,6 @@ export default function Index() {
             ))}
         </div>
       </div>
-    </div>
+    </div >
   );
 }
