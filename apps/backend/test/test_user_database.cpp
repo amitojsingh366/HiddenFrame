@@ -32,9 +32,9 @@ BOOST_AUTO_TEST_CASE(TestCreateAndAuthenticateUser)
             BOOST_FAIL("Authentication was not OK! Test of UAC FAILED");
         }
 
-        int id1 = createInvite("amitoj");
-        int id2 = createInvite("amitoj");
-        int id3 = createInvite("amitoj");
+        int64_t id1 = createInvite("amitoj",1);
+        int64_t id2 = createInvite("amitoj",2);
+        int64_t id3 = createInvite("amitoj",3);
         createNewUser("1", "p1", id1);
         createNewUser("2", "p2", id2);
         createNewUser("3", "p3", id3);

@@ -137,7 +137,6 @@ export default function Index() {
           <Button variant="ghost" size="sm" onClick={copyKeyToClipboard}><Copy /></Button>
         </p>}
 
-        <h2 className="text-2xl font-[Outfit] font-black ">Photos from Unsplash</h2>
         <div className="grid grid-cols-3 gap-4 p-4">
           {photos
             .sort((a: { id: number }, b: { id: number }) => b.id - a.id)
