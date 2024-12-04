@@ -4,9 +4,10 @@ import { redirect } from "@remix-run/node";
 import { PageHeader, Button, Input } from "../../components";
 import { getSession } from "../../session";
 import { Form, useActionData, useLoaderData, useNavigation } from "@remix-run/react";
-import { useEffect } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { BASE_API_URL } from "../../lib/consts";
 import { toast } from "sonner";
+import { Copy } from "lucide-react";
 
 export const meta: MetaFunction = () => {
     return [
@@ -88,7 +89,7 @@ export const action: ActionFunction = async ({ request }) => {
 type ActionData = {
     success: boolean;
     message?: string;
-    inviteId?: number;
+    inviteId?: string;
 };
 
 export default function Account() {
@@ -97,15 +98,30 @@ export default function Account() {
     const transition = useNavigation();
     const loading = transition.state === "submitting";
 
+    const [inviteUrl, setInviteUrl] = useState<string>();
+
     useEffect(() => {
         if (actionData) {
             if (!actionData.success) {
                 toast.error(actionData.message || "An error occurred");
             } else {
+                if (actionData.inviteId) {
+                    setInviteUrl(`${window.location.origin}/register?inviteId=${actionData.inviteId}`);
+                }
                 toast.success(actionData.message || "Action completed successfully");
             }
         }
     }, [actionData]);
+
+
+
+    const copyKeyToClipboard = useMemo(() => async () => {
+        if (inviteUrl) {
+            await navigator.clipboard.writeText(inviteUrl);
+            toast.success("Invite URL copied to clipboard");
+        }
+    }, [inviteUrl]);
+
 
     return (
         <div className="flex items-center justify-center h-full">
@@ -126,6 +142,7 @@ export default function Account() {
 
                 <div className="flex flex-col gap-4 p-4">
                     <h3 className="text-xl">Invites</h3>
+                    {inviteUrl && <p>Invite created successfully. Invite URL: {inviteUrl}  <Button variant="ghost" size="sm" onClick={copyKeyToClipboard}><Copy /></Button></p>}
                     <p> You have {invites ? 5 - invites.length : 5} invite left</p>
                     <ul className="list-disc list-inside">
                         {invites && invites.map((invite: any) => <li key={invite.id}>{invite.id}</li>)}
@@ -135,8 +152,6 @@ export default function Account() {
                         <Input type="hidden" name="actionType" value="createInvite" />
                         <Button loading={loading} type="submit">Create New Invite</Button>
                     </Form>
-
-                    {actionData?.inviteId && <p>Invite created successfully. Invite ID: {actionData.inviteId}</p>}
                 </div>
             </div>
         </div>

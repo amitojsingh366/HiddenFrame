@@ -5,11 +5,13 @@ import {
   Scripts,
   ScrollRestoration,
 } from "@remix-run/react";
-import type { LinksFunction } from "@remix-run/node";
+import type { LinksFunction, LoaderFunction } from "@remix-run/node";
 
 import "./tailwind.css";
 import { Toaster } from "sonner";
 import { ThemeSwitcher } from "./components";
+import { LogoutButton } from "./components/LogoutButton";
+import { getSession } from "./session";
 
 export const links: LinksFunction = () => [
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
@@ -24,7 +26,12 @@ export const links: LinksFunction = () => [
   },
 ];
 
+export const loader: LoaderFunction = async ({ request }) => {
+  const session = await getSession(request.headers.get("Cookie"));
+  const username = session.get("username");
 
+  return { username }
+};
 
 export function Layout({ children }: { children: React.ReactNode }) {
   return (
@@ -42,6 +49,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <div className="flex flex-row px-4">
           <ThemeSwitcher />
           <span className="flex-grow" />
+          <LogoutButton />
         </div>
         {children}
         <Toaster richColors />

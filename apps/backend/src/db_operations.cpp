@@ -30,7 +30,7 @@ sqlite3 *createDB(const string &filepath)
                          "password TEXT NOT NULL);";
 
   const char *invitesSql = "CREATE TABLE IF NOT EXISTS Invites("
-                           "id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,"
+                           "id INTEGER PRIMARY KEY NOT NULL,"
                            "is_valid BOOLEAN,"
                            "created_by INTEGER,"
                            "used_by INTEGER,"
@@ -149,7 +149,7 @@ void createNewAdmin(const string &username, const string &password)
   closeDB(db);
 }
 
-void createNewUser(const string &username, const string &password, const int inviteID)
+void createNewUser(const string &username, const string &password, const int64_t inviteID)
 {
   sqlite3 *db = createDB("./database/userdatabase.db");
 
@@ -176,7 +176,7 @@ void createNewUser(const string &username, const string &password, const int inv
     throw runtime_error("Failed to prepare statement for invite check - " + string(sqlite3_errmsg(db)));
   }
 
-  sqlite3_bind_int(stmt, 1, inviteID);
+  sqlite3_bind_int64(stmt, 1, inviteID);
   rc = sqlite3_step(stmt);
   if (rc == SQLITE_ROW)
   {
@@ -210,7 +210,7 @@ void createNewUser(const string &username, const string &password, const int inv
   closeDB(db);
 }
 
-int createInvite(const string &username)
+int64_t createInvite(const string &username,int64_t id)
 {
   sqlite3 *db = createDB("./database/userdatabase.db");
   if (!db)
@@ -242,9 +242,8 @@ int createInvite(const string &username)
       closeDB(db);
       return -1; // No invites remaining
     }
-
-    const char *inviteSql = "INSERT INTO Invites (is_valid, created_by, used_by) VALUES (1, ?, NULL);";
-    vector<pair<int, string>> inviteBindings{{1, to_string(userID)}};
+    const char *inviteSql = "INSERT INTO Invites (id, is_valid, created_by, used_by) VALUES (?, 1, ?, NULL);";
+    vector<pair<int, string>> inviteBindings{{1,to_string(id)},{2, to_string(userID)}};
 
     sqlite3_exec(db, "BEGIN TRANSACTION;", NULL, NULL, NULL);
     executeNonQuery(db, inviteSql, inviteBindings);
@@ -254,7 +253,7 @@ int createInvite(const string &username)
     executeNonQuery(db, updateSql, updateBindings);
     sqlite3_exec(db, "COMMIT;", NULL, NULL, NULL);
 
-    int inviteID = sqlite3_last_insert_rowid(db);
+    int64_t inviteID = sqlite3_last_insert_rowid(db);
     closeDB(db);
     return inviteID;
   }
@@ -289,7 +288,7 @@ vector<crow::json::wvalue> listInvites(const int &userId)
   while (sqlite3_step(stmt) == SQLITE_ROW)
   {
     crow::json::wvalue invite;
-    invite["id"] = sqlite3_column_int(stmt, 0);
+    invite["id"] = sqlite3_column_int64(stmt, 0);
     invite["is_valid"] = sqlite3_column_int(stmt, 1);
     invite["created_by"] = sqlite3_column_int(stmt, 2);
     invite["used_by"] = sqlite3_column_int(stmt, 3);

@@ -65,10 +65,10 @@ private:
 
 sqlite3 *createDB(const string &filepath);
 void createNewAdmin(const string &username, const string &password);
-void createNewUser(const string &username, const string &password, const int InviteID);
+void createNewUser(const string &username, const string &password, const int64_t InviteID);
 bool authenticateUser(const string &username, const string &password);
 bool changePassword(const string &username, const string &newPassword);
-int createInvite(const string &username);
+int64_t createInvite(const string &username, int64_t id);
 vector<crow::json::wvalue> listInvites(const int &userId);
 pair<int, string> verifyTokenWithDb(const string &tokenId);
 void saveToken(const string &username, const string &tokenId);

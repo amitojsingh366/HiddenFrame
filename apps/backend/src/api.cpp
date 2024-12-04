@@ -133,9 +133,10 @@ int main()
                     // username and password sent as json in req body
                     string username = jsonBody["username"].s();
                     string password = jsonBody["password"].s();
-                    int inviteId = jsonBody["inviteId"].i();
+                    int64_t inviteId =jsonBody["inviteId"].i();
+                    // cout << req.body << endl;
 
-                    createNewUser(username, password, inviteId);
+                   createNewUser(username, password, inviteId);
                 }
                 catch (const std::runtime_error &e)
                 {
@@ -259,12 +260,14 @@ int main()
     CROW_ROUTE(app, "/invites/create")
         .methods(crow::HTTPMethod::POST)
         .CROW_MIDDLEWARES(app, AuthorizationMiddleware)(
-            [&app](const crow::request &req, crow::response &res)
+            [&app, &flaker](const crow::request &req, crow::response &res)
             {
                 auto &ctx = app.get_context<AuthorizationMiddleware>(req);
                 try
                 {
-                    int inviteId = createInvite(ctx.username);
+                    int64_t id = flaker.nextId();
+                    cout << id << endl;
+                    int64_t inviteId = createInvite(ctx.username,id);
                     if (inviteId == -1)
                     {
                         crow::json::wvalue error_json;
