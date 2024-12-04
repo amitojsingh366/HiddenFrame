@@ -9,12 +9,6 @@ import { getSession } from "../session";
 import { InfoIcon } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "../components/ui/tooltip";
 
-export const meta: MetaFunction = () => {
-    return [
-        { title: "HiddenFrame" },
-        { name: "description", content: "View Image" },
-    ];
-};
 
 export const loader: LoaderFunction = async ({ request, params }) => {
     const session = await getSession(request.headers.get("Cookie"));
@@ -26,6 +20,17 @@ export const loader: LoaderFunction = async ({ request, params }) => {
     if (!username) redirect(imgUrl)
 
     return { imgUrl, username };
+};
+
+export const meta: MetaFunction<
+    typeof loader,
+    { "routes/u.$id": typeof loader }
+> = ({ data }) => {
+    return [
+        { title: "HiddenFrame" },
+        { property: "og:image", content: data.imgUrl },
+        { name: "description", content: "View Image" },
+    ];
 };
 
 export const action: ActionFunction = async ({ request, params }) => {
